@@ -1,0 +1,20 @@
+\chapter{K Nearest Neighbor}
+
+% Add citations for the description of the process?
+\vspace{5 mm}
+\noindent
+K nearest neighbor is typically applied as a classification method. The 
+intuition behind it is given some training data and a new data point, you would 
+like to classify the new data based on the class of the training data that it 
+is close to. Closeness is defined by a distance metric (e.g. $L_{2}$, $L_{1}$, 
+etc...) applied to the feature space. We find the $k$ closest such data points 
+across the whole training data and classify based on a majority class of the 
+$k$ nearest training data.
+
+\vspace{5 mm}
+\noindent
+The K nearest neighbor method of classification works well when similar classes 
+are clustered around certain feature spaces. However, the major downside to 
+implementing the K nearest neighbor method is it is computationally intense. 
+If we have training data size $N$, feature space size $P$, and neighbor size 
+$k$, we need to perform $O(NP)$ computations to determine the 
