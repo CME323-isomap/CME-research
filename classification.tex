@@ -2,3 +2,67 @@
 
 \vspace{5 mm}
 \noindent
+For a classification problem, we are given a dataset of size $n$ where each 
+data point falls into one of $c$ classes. Each data point contains $p$ features. 
+For simplicity, we will assume that each feature is a continuous real number. 
+We believe that each class $c$ will appear in clusters. That is, we think that 
+the differences between the feature values within the class are smaller than 
+the differences out of class. In addition, we have an additional dataset of 
+size $m$ of which we do not know their classes. We would like to predict these 
+data points classes using our dataset of size $n$ (our training data). Given 
+this information, and assuming that our feature dimension $p$ is sufficiently 
+small or we have data size $n >> p$ such that we can overcome the curse of 
+dimensionality associated with distance problems, we would like to apply the 
+K nearest neighbors classification scheme.
+\textbf{ADD CITATION}
+
+\vspace{5 mm}
+\noindent
+The general idea is we will compare each data point in our classification data 
+set to all of the data in our training data. We compute the distance between 
+the data we wish to classify and all of the training data. The distance measure 
+can be a variety of metrics (e.g. the Euclidean distance, absolute distance, 
+some user defined distance metric, etc...). For our purposes, we will use the 
+Euclidean distance metric for distances. The $K$ training data points with the 
+smallest computed distance are the data points we will classify on. We classify 
+the point to one of the $c$ classes that appears the most in the $K$ selected 
+training points.
+
+\vspace{5 mm}
+\noindent
+There are generally two methods for computing K nearest neighbors. You can 
+iterate through each point you would wish to classify, compute its distance 
+from every training data point, select the closest $K$ points, and return the 
+class that appears the most of those $K$ points. The psuedo code for this 
+process is as follows:
+
+\begin{algorithm}
+%-------------------------------Header------------------------------------------
+\DontPrintSemicolon
+\KwData{$X = n \times p$ matrix of training points\\ 
+\hspace{29pt} $Y = n \times 1$ vector of the classes in $X$\\
+\hspace{29pt} $A = m \times p$ matrix of data to classify}
+\KwResult{$B = m \times 1$ vector of classifications for $m$ data set $A$}
+%-------------------------------Body--------------------------------------------
+\Begin{
+    $B \leftarrow $ empty $m \times 1$ vector\;
+    \For{data point $y_{i} \in Y$}{
+        $l \leftarrow $ empty $k$ length list\;
+        \For{data point $x_{j} \in X$}{
+            $d \leftarrow Dist(y_{i}, x_{j})$\;
+            $c \leftarrow Y[j]$\;
+            \If{$|l| < k$}{
+                place $(c, d)$ in $l$ in descending order of $d$\;
+            }
+            \ElseIf{$l[k][2] < d$}{
+                remove element $l[k]$\;
+                place $(c, d)$ in $l$ in descending order of $d$\;
+            }
+        }
+        $B[i] \leftarrow $ mode of $c$'s in $l$\;
+    }
+}
+\caption{KNNmethod1\label{KNN1}}
+\end{algorithm}
+
+\bftext{IS THERE A REFERNCE?}
