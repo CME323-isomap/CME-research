@@ -14,37 +14,29 @@ $k$ nearest training data.
 \vspace{5 mm}
 \noindent
 The K nearest neighbor method of classification works well when similar classes 
-are clustered around certain feature spaces.
-\textbf{ADD CITATION} 
-However, the major downside to 
+are clustered around certain feature spaces [1]. However, the major downside to 
 implementing the K nearest neighbor method is it is computationally intense. 
 In order to find our new data's $k$ closest observations in the training data, 
 we will need to compare its distance to every single training data point. 
 If we have training data size $N$, feature space size $P$, and assuming you 
 choose a distance metric that is linear in the feature space, we need to 
 perform $O(NP)$ computations to determine the a single data point's $k$ nearest 
-neighbors.
-\textbf{ADD CITATION}
-This computation will only grow linearly with the amount of new observations 
-you wish to predict.
-\textbf{ADD CITATION}
-With large datasets, this classification method becomes prohibitive traditional 
-serial computing paradigms.
-\textbf{ADD CITATION???}
+neighbors [2]. This computation will only grow linearly with the amount of new 
+observations you wish to predict [3]. With large datasets, this classification 
+method becomes prohibitively expensive for traditional serial computing 
+paradigms [3].
+
 
 \vspace{5 mm}
 \noindent
 K nearest neighbor also has applications beyond direct classification. It can 
-be used as a way to approximate the geometric structure of data.
-\textbf{ADD CITATION}
-It does this by finding each data point's $k$ closest data points and 
-``drawing'' lines between them. This is represented by a graph data structure, 
-\textbf{ADD CITATION} but visually it can represent manifolds and geometric 
-structures (see figure 1).
+be used as a way to approximate the geometric structure of data [2]. It does 
+this by finding each data point's $k$ closest data points and ``drawing'' lines 
+between them. This is represented by a graph data structure [4], but visually it 
+can represent manifolds and geometric structures (see figure 1).
 \textbf{ADD FIGURE SHOWING DATA AND A SHAPE} 
 Performing this type of operation is used predominately in manifold learning 
-techniques, such as isomaps.
-\textbf{ADD CITATION}
+techniques, such as isomaps [4].
 
 \vspace{5 mm}
 \noindent
@@ -65,3 +57,10 @@ environment.
 \textbf{ADD CITATION???} 
 We will approximate using a spill tree data structure.
 \textbf{ADD CITATION}
+
+
+\textbf{References:}
+[1]: Richard Duda, Peter Hart, David Stork Duda. \it{"Pattern Classification"} p.18-30, 2001.
+[2]: Saravanan Thirumuruganathan. \it{"A Detailed Introduction to K-Nearest Neighbor (KNN) Algorithm"}, 2010. 
+[3]: Ali Dashti. \it{"Efficient Computation Of K-Nearest Neighbor Graphs For Large High-Dimensional Data Sets On GPU Clusters"}, 2013.
+[4]: Wei Dong, Moses Charikar, Kai Li. \it{"Efﬁcient K-Nearest Neighbor Graph Construction for Generic Similarity Measures"}, 2011.
