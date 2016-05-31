@@ -1,44 +1,125 @@
-\chapter{Spill Trees}
+\chapter{Metric Trees and Spill Trees}
 
 \vspace{5 mm}
 \noindent
-When performing distributed K nearest neighbor search for geometry applications, 
-the amount of computations involved to compute an exact solution quickly 
-becomes massive.  Especially for high-dimensional applications like isomaps, 
-the computation costs are often prohibitively expensive.  To alleviate this 
-problem, approximate solutions are often substituted for the less reasonable 
-exact solution.  There are a variety of approximate solution techniques for K 
-nearest neighbor search, but we will be using hybrid spill trees as our primary 
-data structure. 
+As mentioned earlier in the report, performing K nearest neighbor search for 
+data geometry applications is computationally infeasible for large data sets. 
+To alleviate this problem, we must approximate the solution. There are a 
+variety of approximate solution techniques for K nearest neighbor search. We 
+will focus on using hybrid spill trees and metric trees as our primary data 
+structure.
 
 \vspace{5 mm}
 \noindent
 Spill trees are specialized data storage constructs that are designed to 
 efficiently organize a set of multidimensional points.  Spill trees operate by 
-constructing a binary tree where each node of the tree represents a subset of 
-the input points that were given to be stored.  At each node, starting with the 
-node corresponding to the full dataset, we will construct two children nodes. 
-These can be denoted $v.lc$ and $v.rc$, in a spill tree these will be subsets of 
-the parent node's corresponding points, and are allowed to overlap.  To 
-construct these children nodes, the splitting procedure is as follows.
+constructing a binary tree. The children in a full spill tree are a sub-set of t
+he original data that empirically have the property of being close to one 
+another. In other words, the spill tree is a way to look up data in which we 
+can determine which data point is close to other observations.
+
+\vspace{5 mm}
+\noindent
+Each parent node stores a classification method for whether a data point should 
+go ``left'' or ``right'' along the node split. The classification method is 
+done on whether the data point we wish to classify appears on either the left 
+or right side of a boundary drawn through the data set (we'll talk about this 
+boundary later in this report). The idea is that this boundary is constructed 
+such that after a data point traverses the whole tree, it will have a high 
+likelihood of ending up in a subset of data that is close to that point.
+
+\vspace{5 mm}
+\noindent
+The method for constructing a spill tree is as follows:
 
 \begin{itemize}
-  \item Define $\tau$ as the overlap size, with $0 \le \tau \le \infty$
-  \item Define $v$ as the parent node, and $v.lc$ and $v.rc$ as the children to 
-  be constructed
-  \item Define $P$ as the parent node's point list, then $m$ is the midpoint of 
-  that list
-  \item We now construct a decision boundary $B$ that goes through the midpoint 
-  $m$
-  \item From this decision bound, we can construct two parallel decision bounds 
-  $LB$ and $RB$, both $\tau$ away from $B$
-  \item Define $P.lc$ and $P.rc$ as the children nodes' point lists
-  \item Then $P.lc = {x|x \in P, d(x,RB) +2\tau > d(x.LB)}$
-  \item And $P.rc = {x|x \in P, d(x,LB) +2\tau > d(x.RB)}$
-  \item Denote $v.lc$ and $v.rc$ as parent nodes and split on them, repeating until 
-  the point list size hits a certain threshold.
+  \item Starting at the root of the tree, we consider our whole data set. At 
+  each parent node, say $v$, we consider the subset of data that abide by the 
+  decision bound created in the previous parent nodes.
+  \item For each parent, we define two pivot nodes $p.lc$ and $p.rc$ such that 
+  $p.lc$ and $p.rc$ have the maximum distance between them compared to all 
+  other data points.
+  \item We construct a hyperplane between $p.lc$ and $p.rc$ such that the line 
+  between the two points is normal to the hyperplane and every point on the 
+  hyperplane is equidistant from $p.lc$ and $p.rc$.
+  \item Define $\tau$ as the overlap size, with $0 \le \tau < \infty$. $\tau$ 
+  is a tuning parameter in our construction of the spill tree. We use $\tau$ 
+  to construct two additional planes that are parallel to our initial 
+  hyperplane and are distance $\tau$ away from this initial boundary hyperplane.
+  \item We define the two new hyperplane boundaries as follows: the hyperplane 
+  that is closest to $p.lc$ is $\tau.lc$ and the other closer to $p.rc$ is 
+  $\tau.rc$.
+  \item We finally split the data at node $v$ based on the rule that if the 
+  data point is to the left of $\tau.rc$, we send it to the right child and if 
+  it is to the right of $\tau.lc$ we send it to the left child. If a data point 
+  satisfies both conditions, it is sent to both the right and left child.
+  \item We keep splitting the data until the data size in each node hits a 
+  specified threshold.
 \end{itemize}
 %CITE 2666
+
+\vspace{5 mm}
+\noindent
+Notice that the use of the $\tau$ parameter allows for data to be duplicated if 
+it appears within $\tau$ of the initial boundary split. The use of this 
+parameter is the defining feature of a spill tree. Spill trees that set 
+$\tau = 0$ are called metric trees.
+%CITE 2666
+
+\vspace{5 mm}
+\noindent
+The pseudo code for implementation is BLAH. The complexity for implementation is 
+BLAH.
+
+\vspace{5 mm}
+\noindent
+We would like to use a spill tree model on our data to categorize data with 
+some likelihood of being close to our chosen data point. The re-sampling 
+and duplication of data points inherent to spill trees (as apposed to metric 
+trees) is ideal for a problem like K Nearest Neighbor. We frequently run into 
+situations where data point $a$ might have neighbor data point $b$, but $b$ has 
+other points that it is closer to (see figure). 
+\bftext{INSERT FIGURE}
+Without duplicates, $a$ would then be classified as a neighbor to $b$ and vice 
+versa.
+\bftext{ISTHIS TRUE?}
+
+\vspace{5 mm}
+\noindent
+Further, if we wanted to use K Nearest Neighbor for classification, once we 
+construct the spill tree, classifying a point would then be as simple as 
+performing a look up for the point (which would have complexity $O(p d)$ where 
+$d = $ the depth of the spill tree) and then computing K Nearest Neighbor on 
+the subset of the data, which if we set a threshold of the size of our child 
+node equal to $c$ would be $O(c^{2} p)$ for a total time complexity of 
+$O(p d + c^{2} p)$. Compared to our naive way of doing K Nearest Neighbor, 
+this classification scheme with $c << n$, our runtime on classification is much 
+less.
+
+\vspace{5 mm}
+\noindent
+However, there are numerous problems when implementing a spill tree directly 
+on our whole data set.
+
+\begin{itemize}
+\item Finding the two pivots with the largest distance apart is already 
+$O(n^{2} p)$, so implementing a spill tree may help us for lookup, but will not 
+help us in avoiding the time complexity of actually fitting a geometric model.
+\item For data size large enough that it will not fit on a single machine, 
+calculating a spill tree directly in a distributed environment will be 
+near-impossible. Like K Nearest Neighbor, to construct a spill tree with 
+perfect precision, we need to compare each data point to every other data 
+point to determine the furthest two data points. On a distributed setting, this 
+is impossible without a lot of computer communication.
+\end{itemize}
+
+\vspace{5 mm}
+\noindent
+Instead of constructing a spill tree on all of our data, we will instead 
+implement an approximate hybrid spill tree. This approximation method will 
+construct a sampled hybrid spill tree on one machine. This spill tree will 
+classify our data into chunks of data that can fit on single machines. From 
+there, we construct a spill tree on each of the distributed data sets.
 
 \vspace{5 mm}
 \noindent
