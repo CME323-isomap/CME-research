@@ -3,13 +3,13 @@
 \vspace{5 mm}
 \noindent
 When performing distributed K nearest neighbor search for geometry applications, 
-the amount of computations invloved to compute an exact solution quickly 
+the amount of computations involved to compute an exact solution quickly 
 becomes massive.  Especially for high-dimensional applications like isomaps, 
-the computation costs are often prohibitively expensive.  To allieveate this 
+the computation costs are often prohibitively expensive.  To alleviate this 
 problem, approximate solutions are often substituted for the less reasonable 
 exact solution.  There are a variety of approximate solution techniques for K 
 nearest neighbor search, but we will be using hybrid spill trees as our primary 
-datastructure. 
+data structure. 
 
 \vspace{5 mm}
 \noindent
@@ -18,46 +18,56 @@ efficiently organize a set of multidimensional points.  Spill trees operate by
 constructing a binary tree where each node of the tree represents a subset of 
 the input points that were given to be stored.  At each node, starting with the 
 node corresponding to the full dataset, we will construct two children nodes. 
-These can be denoted v.lc and v.rc, in a spill tree these will be subsets of 
+These can be denoted $v.lc$ and $v.rc$, in a spill tree these will be subsets of 
 the parent node's corresponding points, and are allowed to overlap.  To 
 construct these children nodes, the splitting procedure is as follows.
 
 \begin{itemize}
-  \item Define \tau as the overlap size, with $0 \le \tau \le \infty$
-  \item Define $v$ as the parent node, and $v.lc$ and $v.rc$ as the children to be constructed
-  \item Define $P$ as the parent node's point list, then $m$ is the midpoint of that list
-  \item We now construct a decision boundary $B$ that goes through the midpoint $m$
-  \item From this decision bound, we can construct two parallel decision bounds $LB$ and $RB$, both $\tau$ away from $B$
+  \item Define $\tau$ as the overlap size, with $0 \le \tau \le \infty$
+  \item Define $v$ as the parent node, and $v.lc$ and $v.rc$ as the children to 
+  be constructed
+  \item Define $P$ as the parent node's point list, then $m$ is the midpoint of 
+  that list
+  \item We now construct a decision boundary $B$ that goes through the midpoint 
+  $m$
+  \item From this decision bound, we can construct two parallel decision bounds 
+  $LB$ and $RB$, both $\tau$ away from $B$
   \item Define $P.lc$ and $P.rc$ as the children nodes' point lists
   \item Then $P.lc = {x|x \in P, d(x,RB) +2\tau > d(x.LB)}$
   \item And $P.rc = {x|x \in P, d(x,LB) +2\tau > d(x.RB)}$
-  \item Denote v.lc and v.rc as parent nodes and split on them, repeating until the point list size hts a certain threshold.
+  \item Denote $v.lc$ and $v.rc$ as parent nodes and split on them, repeating until 
+  the point list size hits a certain threshold.
 \end{itemize}
 %CITE 2666
 
 \vspace{5 mm}
 \noindent
-The main problem with using a normal spill tree as our datastructure is that is 
-\tau is too large, the depth of the spill tree can go to infinity.  To prevent 
-this, we can use a hybrid spill tree.  Hybrid spill trees operate identically to 
-spill trees, except they have an additional parameter \rho, with $0 \le \tau < 1$ 
-such that if the overlap proportion when P.lc and P.rc are constructed is 
-$> \tau$, then $P.lc$ and $P.rc$ are instead simply split on the initial bound 
-$B$, with no overlap.  These nodes are marked as non-overlap, which will become 
-important later on.  This guarantees that we will not have an infinite depth 
-tree, and makes spill trees usable for our application.
+The main problem with using a normal spill tree as our data structure is that is
+$\tau$ is too large, the depth of the spill tree can go to infinity.  To prevent
+this, we can use a hybrid spill tree.  Hybrid spill trees operate identically to
+spill trees, except they have an additional parameter $\rho$, with $0 \le \tau <
+1$  such that if the overlap proportion when $P.lc$ and $P.rc$ are constructed
+is  $> \tau$, then $P.lc$ and $P.rc$ are instead simply split on the initial
+bound  $B$, with no overlap.  These nodes are marked as non-overlap, which will
+become  important later on.  This guarantees that we will not have an infinite
+depth  tree, and makes spill trees usable for our application.
 
 \vspace{5 mm}
 \noindent
-We will be using a hybrid spill tree to store our data, because it will allow us 
-to make efficient approximate K nearest neighbor searches.  On a standard spill 
-tree with overlaps we would use defeatist search to implement K nearest neighbors, 
-but it is important to remember that we now have non-overlap nodes scattered 
-throughout, for which we would instead use the standard metric tree depth first 
-search. %ADD CITATION TO 2666 HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRREEEEEE
+We will be using a hybrid spill tree to store our data, because it will allow us
+to make efficient approximate K nearest neighbor searches.  On a standard spill
+tree with overlaps we would use defeatist search to implement K nearest
+neighbors,  but it is important to remember that we now have non-overlap nodes
+scattered  throughout, for which we would instead use the standard metric tree
+depth first  search. \textbf{ADD CITATION TO 2666HEEEEEEEEEEEEEEEERRRRRRRRREEE}
 
 \vspace{5 mm}
 \noindent
-This gives us an efficient datastructure to use for our K nearest neighbors algorithm, but it is still designed to be used in a serial environment, and we want to use this in a distributed environment.  To accomplish this we will have to somehow split the dataset among multiple machines.  This is problematic, as to generate a hybrid spill tree, you need to have all of the data accessible in memory.  
+This gives us an efficient data structure to use for our K nearest neighbors
+algorithm, but it is still designed to be used in a serial environment, and we
+want to use this in a distributed environment.  To accomplish this we will have
+to somehow split the dataset among multiple machines.  This is problematic, as
+to generate a hybrid spill tree, you need to have all of the data accessible in
+memory.
 
 
