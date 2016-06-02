@@ -38,4 +38,4 @@ sep_data %>% ggplot() +
   geom_point(mapping = aes(x = V1, y = V2, color = V3))
 
 # Write out data
-write_csv(sep_data, path = "/Users/henryneeb/CME-research/sep_data")
+write_csv(sep_data, path = "/Users/henryneeb/CME-research/sep_data.txt")

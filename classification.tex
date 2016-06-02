@@ -30,11 +30,16 @@ training points.
 
 \vspace{5 mm}
 \noindent
-There are generally two methods for computing K nearest neighbors. You can 
-iterate through each point you would wish to classify, compute its distance 
-from every training data point, select the closest $K$ points, and return the 
-class that appears the most of those $K$ points. The psuedo code for this 
-process is as follows:
+There are generally two methods for computing K nearest neighbors.
+
+\vspace{5 mm}
+\noindent
+\textbf{MAKE SECTION HEADER}
+
+You can iterate through each point you would wish to classify, compute its 
+distance from every training data point, select the closest $K$ points, and 
+return the class that appears the most of those $K$ points. The psuedo code for 
+this process is as follows:
 
 \begin{algorithm}
 %-------------------------------Header------------------------------------------
@@ -62,7 +67,62 @@ process is as follows:
         $B[i] \leftarrow $ mode of $c$'s in $l$\;
     }
 }
-\caption{KNNmethod1\label{KNN1}}
+\caption{Serial KNN Method 1\label{KNN1}}
 \end{algorithm}
 
-\bftext{IS THERE A REFERNCE?}
+\textbf{IS THERE A REFERNCE?}
+
+\vspace{5 mm}
+\noindent
+On a single machine, this algorithm will take $O(n p m \log k)$. 
+\textbf{THIS NEEDS A CITATOIN} 
+We can modify this algorithm to run on a distributed network. Assume we have 
+$S$ machines. If the data we wish to classify is small enough to fit locally on 
+each distributed machine, we can then split our training data evenly across our 
+machines (each machine contins $\frac{n}{S}$ data points), locally compute 
+the K nearest neighbors on each of our machines using the above algorithm, and 
+then reduce each locally computed answer to one machine where we compare the 
+distances of $K * S << n$ elements per data point. This is easily implemented 
+in a MapReduce framework.
+
+\begin{algorithm}
+%-------------------------------Header------------------------------------------
+\DontPrintSemicolon
+\KwData{$X = n \times p$ matrix of training points\\ 
+\hspace{29pt} $Y = n \times 1$ vector of the classes in $X$\\
+\hspace{29pt} $A = m \times p$ matrix of data to classify}
+\KwResult{$B = m \times 1$ vector of classifications for $m$ data set $A$}
+%-------------------------------Body--------------------------------------------
+\Begin{
+    Broadcast $A$ to our $S$ machines\;
+    \For{$i$ in $p$}{
+        Convert the $i$th data point $p_{i}$ in $X$ to the tuple ($i$, $p_{i}$)
+        return ($\ceil*{\frac{m}{S}}$, $p_{i}$) 
+    }
+}
+\caption{Distributed KNN Method 1 - Mapper\label{KNN1m}}
+\end{algorithm}
+
+\begin{algorithm}
+%-------------------------------Header------------------------------------------
+\DontPrintSemicolon
+\KwData{$X = n \times p$ matrix of training points\\ 
+\hspace{29pt} $Y = n \times 1$ vector of the classes in $X$\\
+\hspace{29pt} $A = m \times p$ matrix of data to classify}
+\KwResult{$B = m \times 1$ vector of classifications for $m$ data set $A$}
+%-------------------------------Body--------------------------------------------
+\Begin{
+    \textbf{MAPPER:}\;
+    Broadcast $A$ to our $S$ machines\;
+    \For{$i$ in $p$}{
+        Convert the $i$th data point $p_{i}$ in $X$ class $c_{i}$ and $Y$ to the tuple ($i$, ($p_{i}$, $c_{i}$)\;
+        return ($\ceil*{\frac{m}{S}}$, ($p_{i}$, $c_{i}$)\;
+    }
+    \textbf{LOCALLY ON EACH MACHINE:}\;
+    Run modified KNN Method 1 (only return list $k$ for each point) for each data group with key value = $i$ with $A$.\;
+    
+
+
+}
+\caption{Distributed KNN Method 1 - Reducer\label{KNN1r}}
+\end{algorithm}
