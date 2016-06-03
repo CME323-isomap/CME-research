@@ -1,0 +1,25 @@
+\chapter{Algorithm}
+
+
+% Figure out how to add pic I made, do walkthrough to explain
+
+% Talk about comm costs, differences from base
+
+One of the advantages to our algorithm is that the runtime is heavily 
+modifiable.  Some of our user parameters such as $m$ and $u$ are tuned according
+to memory constraints or dataset size, but we can adjust $\tau$ and $\rho$ to 
+bring down the runtime of our algorithm at the expense of accuracy, or increase 
+the accuracy at the expense of the runtime.  Once you fit an initial model it is 
+convenient to be able to optimize your accuracy, subject to your personal time 
+constraints.  Consider our top tree, we know that when $\tau$ is 0 the model 
+becomes metric, and that as $\tau$ increases the overlap will become greater and 
+greater between pairs of children nodes.  It is therefore important to keep 
+$\tau$ relatively low in the top tree, where a large amount of overlap will 
+result in a greater compute time in the tope tree, as well as many more 
+computations down the line when we are using our bottom trees.  In the bottom 
+trees, however, it is less important to keep $\tau$ low, as multiple machines 
+are making their spill tree computations in parallel, and we can afford to allow 
+more overlap, as long as we set an appropriate value for $\rho$ to prevent the 
+tree depth from getting out of hand.  Overall, the user defined parameters give 
+our model a large degree of customization, and allow it to become optimized for 
+the problem at hand.
