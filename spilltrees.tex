@@ -6,9 +6,7 @@ Please note that for this section we will be explaining how hybrid spill
 trees operate, so that we can then implement them in our final algorithm. 
 As such, we will be paraphrasing and borrowing heavily from  \textit{``
 An Investigation of Practical Approximate Nearest Neighbor Algorithms''},
-which is cited below.
-
-% SHOULD WE STILL CITE WITH [5] THROUGHOUT?
+which is cited below.  Any fine details below originate from [5].
 
 \vspace{5 mm}
 \noindent
@@ -66,7 +64,6 @@ The method for constructing a spill tree is as follows:
   \item We keep splitting the data until the data size in each node hits a 
   specified threshold.
 \end{itemize}
-%CITE 2666
 
 \vspace{5 mm}
 \noindent
@@ -74,7 +71,6 @@ Notice that the use of the $\tau$ parameter allows for data to be duplicated if
 it appears within $\tau$ of the initial boundary split. The use of this 
 parameter is the defining feature of a spill tree. Spill trees that set 
 $\tau = 0$ are called metric trees.
-%CITE 2666
 
 \vspace{5 mm}
 \noindent
@@ -150,7 +146,7 @@ to make efficient approximate K nearest neighbor searches.  On a standard spill
 tree with overlaps we would use defeatist search to implement K nearest
 neighbors,  but it is important to remember that we now have non-overlap nodes
 scattered  throughout, for which we would instead use the standard metric tree
-depth first  search. \textbf{ADD CITATION TO 2666HEEEEEEEEEEEEEEEERRRRRRRRREEE}
+depth first search.
 
 \vspace{5 mm}
 \noindent
