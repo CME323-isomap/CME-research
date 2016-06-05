@@ -35,9 +35,15 @@ this by finding each data point's $k$ closest data points and ``drawing'' lines
 between them. This is represented by a graph data structure [4], but visually it 
 can represent manifolds and geometric structures (see Figure 1).
 
-\includegraphics{manifold}
-Figure 1: An application of isomaps on a ``swiss roll'' dataset. \textit{Source: Lydia E. Kavraki, ``Geometric Methods in Structural
+\begin{figure}[h]
+\includegraphics[width=8cm]{manifold}\\
+Figure 1: An application of isomaps on a ``swiss roll'' dataset. Notice the 
+shape of the date. KNN is used to approximate this shape, then isomaps is used 
+to reduce the dimensionality.\\ 
+\textit{Source: Lydia E. Kavraki, ``Geometric Methods in Structural
 Computational Biology''}
+\centering
+\end{figure}
 
 \vspace{5 mm}
 \noindent
