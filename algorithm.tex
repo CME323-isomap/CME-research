@@ -43,13 +43,12 @@ there, we construct a spill tree on each of the distributed data sets.
 The main problem with using a normal spill tree as our data structure is that is
 $\tau$ is too large, the depth of the spill tree can go to infinity.  To prevent
 this, we can use a hybrid spill tree.  Hybrid spill trees operate identically to
-spill trees, except they have an additional parameter $\rho$, with $0 \le \tau <
+spill trees, except they have an additional parameter $\rho$, with $0 \le \rho <
 1$  such that if the overlap proportion when $P.lc$ and $P.rc$ are constructed
-is  $> \tau$, then $P.lc$ and $P.rc$ are instead simply split on the initial
+is  $> \rho$, then $P.lc$ and $P.rc$ are instead simply split on the initial
 bound  $B$, with no overlap.  These nodes are marked as non-overlap, which will
 become  important later on.  This guarantees that we will not have an infinite
 depth  tree, and makes spill trees usable for our application.
-\textbf{IS PRIOR PARA RIGHT? WE TALK ABOUT RHO BUT BOUND TAU?}
 
 \vspace{5 mm}
 \noindent
@@ -67,13 +66,61 @@ algorithm, but it is still designed to be used in a serial environment, and we
 want to use this in a distributed environment.  To accomplish this we will have
 to somehow split the dataset among multiple machines.  This is problematic, as
 to generate a hybrid spill tree, you need to have all of the data accessible in
-memory.
+memory.  We solve this by using the following procedure:
 
+\hrulefill
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{algorithm}
+\caption{A visualization of our algorithm to solve distributed K Nearest Neighbors}
+\end{figure}
+\hrulefill
 
-% Figure out how to add pic I made, do walkthrough to explain
+\vspace{5 mm}
+\noindent
+\textbf{ADD QUICK EXPLANATION OF WHAT IS GOING ON HERE} 
 
-% Talk about comm costs, differences from base
+\vspace{5 mm}
+\noindent
+This procedure works because the hybrid spill trees yield children subsets that,
+with high probability, contain nodes that are close together.  This is true for 
+hybrid spill trees more so than metric trees because in a metric tree, two points
+that are very close together can be split into two different subtrees and never be
+compared, but this does not happen in a hybrid spill tree.  In our algorithm, even
+if two similar points happen to be separated in one of the children resulting from
+a split, they will still be together in the other child, and so during evaluation 
+it will still be considered.  This property can be seen below:
 
+\vspace{5 mm}
+\noindent
+\hrulefill
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{metric}
+\caption{In the metric tree, two points that are very close together will not 
+be evaluated, whereas two points much further apart will be, because they 
+happen to be in the same split}
+\end{figure}
+\hrulefill
+
+\vspace{5 mm}
+\noindent
+\hrulefill
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{spill}
+\caption{In the spill tree, we can see that when comparing the corresponding
+subset, there are much better odds of close together points being evaluated
+together}
+\end{figure}
+\hrulefill
+
+\vspace{5 mm}
+\noindent
+\textbf{TALK ABOUT COMM COSTS AND SUCH}
+
+\vspace{5 mm}
+\noindent
 One of the advantages to our algorithm is that the runtime is heavily 
 modifiable.  Some of our user parameters such as $m$ and $u$ are tuned according
 to memory constraints or dataset size, but we can adjust $\tau$ and $\rho$ to 
