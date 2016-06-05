@@ -1,17 +1,17 @@
-\chapter{Classification}
+\section{Classification}
 
 \vspace{5 mm}
 \noindent
-For a classification problem, we are given a dataset of size $n$ where each 
-data point falls into one of $c$ classes. Each data point contains $p$ features. 
+For a classification problem, we are given a dataset of size $N$ where each 
+data point falls into one of $C$ classes. Each data point contains $P$ features. 
 For simplicity, we will assume that each feature is a continuous real number. 
-We believe that each class $c$ will appear in clusters. That is, we think that 
+We believe that each class $C$ will appear in clusters. That is, we think that 
 the differences between the feature values within the class are smaller than 
 the differences out of class. In addition, we have an additional dataset of 
-size $m$ of which we do not know their classes. We would like to predict these 
-data points classes using our dataset of size $n$ (our training data). Given 
-this information, and assuming that our feature dimension $p$ is sufficiently 
-small or we have data size $n >> p$ such that we can overcome the curse of 
+size $M$ of which we do not know their classes. We would like to predict these 
+data points classes using our dataset of size $N$ (our training data). Given 
+this information, and assuming that our feature dimension $P$ is sufficiently 
+small, or we have data size $N >> P$ such that we can overcome the curse of 
 dimensionality associated with distance problems, we would like to apply the 
 K nearest neighbors classification scheme.
 \textbf{ADD CITATION}
@@ -19,40 +19,40 @@ K nearest neighbors classification scheme.
 \vspace{5 mm}
 \noindent
 The general idea is we will compare each data point in our classification data 
-set to all of the data in our training data. We compute the distance between 
+set to all of the data in our training set. We compute the distance between 
 the data we wish to classify and all of the training data. The distance measure 
 can be a variety of metrics (e.g. the Euclidean distance, absolute distance, 
 some user defined distance metric, etc...). For our purposes, we will use the 
 Euclidean distance metric for distances. The $K$ training data points with the 
 smallest computed distance are the data points we will classify on. We classify 
-the point to one of the $c$ classes that appears the most in the $K$ selected 
+the point to one of the $C$ classes that appears the most in the $K$ selected 
 training points.
 
 \vspace{5 mm}
 \noindent
-There are generally two methods for computing K nearest neighbors.
+\textbf{Serial Classification - Algorithm}
 
 \vspace{5 mm}
 \noindent
-\textbf{MAKE SECTION HEADER}
-
-You can iterate through each point you would wish to classify, compute its 
+We can iterate through each point you would wish to classify, compute its 
 distance from every training data point, select the closest $K$ points, and 
 return the class that appears the most of those $K$ points. The psuedo code for 
 this process is as follows:
 
+\newpage
+
 \begin{algorithm}
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
-\KwData{$X = n \times p$ matrix of training points\\ 
-\hspace{29pt} $Y = n \times 1$ vector of the classes in $X$\\
-\hspace{29pt} $A = m \times p$ matrix of data to classify}
-\KwResult{$B = m \times 1$ vector of classifications for $m$ data set $A$}
+\KwData{$X = N \times P$ matrix of training points\\ 
+\hspace{29pt} $Y = N \times 1$ vector of the classes in $X$\\
+\hspace{29pt} $A = M \times P$ matrix of data to classify}
+\KwResult{$B = M \times 1$ vector of classifications for $M$ data set $A$}
 %-------------------------------Body--------------------------------------------
 \Begin{
-    $B \leftarrow $ empty $m \times 1$ vector\;
+    $B \leftarrow $ empty $M \times 1$ vector\;
     \For{data point $y_{i} \in Y$}{
-        $l \leftarrow $ empty $k$ length list\;
+        $l \leftarrow $ empty $K$ length list\;
         \For{data point $x_{j} \in X$}{
             $d \leftarrow Dist(y_{i}, x_{j})$\;
             $c \leftarrow Y[j]$\;
@@ -74,31 +74,60 @@ this process is as follows:
 
 \vspace{5 mm}
 \noindent
-On a single machine, this algorithm will take $O(n p m \log k)$. 
-\textbf{THIS NEEDS A CITATOIN} 
-We can modify this algorithm to run on a distributed network. Assume we have 
-$S$ machines. If the data we wish to classify is small enough to fit locally on 
-each distributed machine, we can then split our training data evenly across our 
-machines (each machine contins $\frac{n}{S}$ data points), locally compute 
-the K nearest neighbors on each of our machines using the above algorithm, and 
-then reduce each locally computed answer to one machine where we compare the 
-distances of $K * S << n$ elements per data point. This is easily implemented 
-in a MapReduce framework.
+\textbf{Serial Classification - Analysis}
+
+\vspace{5 mm}
+\noindent
+On a single machine, this algorithm will take $O(N P M \log K)$ because:
+
+\begin{itemize}
+\item For each data point we wish to classify, we need to compute a distance 
+metric, which will be $O(P)$
+\item We do this computation against $N$ data points, so $O(N P)$ for one data 
+point to classify.
+\item We then need to compare the distance just computed to all other $K$ 
+distances cached and insert. This can be done in $O(\log K)$ with a binary 
+search. This is done at each computation of a distance, so our running 
+complexity so far is $O(N P \log K)$
+\item We now need to do this for all of the data we wish to classify, so this 
+is in total $O(N P M \log K)$
+\end{itemize}
+
+\vspace{5 mm}
+\noindent
+\textbf{Distributed Classification - Algorithm}
+
+\vspace{5 mm}
+\noindent
+We can modify this algorithm to run on a distributed network. The most direct 
+method of performing this is as follows:
+
+\begin{itemize}
+\item Compute the cross product between the data we wish to classify and our 
+training data.
+\item Ship the data evenly across all of our machines.
+\item Compute the distance between each pair of points locally.
+\item Reduce for each data point we wish to classify that data point and the 
+$K$ smallest distances, which we then use to predict
+\end{itemize}
+
+\vspace{5 mm}
+\noindent
+Assume we have $S$ machines. The above is easily implemented in a MapReduce 
+framework.
 
 \begin{algorithm}
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
-\KwData{$X = n \times p$ matrix of training points\\ 
-\hspace{29pt} $Y = n \times 1$ vector of the classes in $X$\\
-\hspace{29pt} $A = m \times p$ matrix of data to classify}
-\KwResult{$B = m \times 1$ vector of classifications for $m$ data set $A$}
+\KwData{$X = N \times P$ matrix of training points, with $x_{j}$ the $j$th point \\ 
+\hspace{29pt} $Y = N \times 1$ vector of the classes in $X$, with $y_{j}$ the class of \\
+\hspace{50pt}      the $j$th point\\
+\hspace{29pt} $A = M \times P$ matrix of data to classify, with $p_{i}$ the $i$th point}
+\KwResult{$M \times N$ tuples of form ($i$, ($p_{i}$, $x_{j}$, $y_{j}$))}
 %-------------------------------Body--------------------------------------------
 \Begin{
-    Broadcast $A$ to our $S$ machines\;
-    \For{$i$ in $p$}{
-        Convert the $i$th data point $p_{i}$ in $X$ to the tuple ($i$, $p_{i}$)
-        return ($\ceil*{\frac{m}{S}}$, $p_{i}$) 
-    }
+    Append $Y$ to $X$ and compute the cross product with $A$\;
+    For each cross product, emit a tuple ($i$, ($p_{i}$, $x_{j}$, $y_{j}$))\;
 }
 \caption{Distributed KNN Method 1 - Mapper\label{KNN1m}}
 \end{algorithm}
@@ -106,23 +135,106 @@ in a MapReduce framework.
 \begin{algorithm}
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
-\KwData{$X = n \times p$ matrix of training points\\ 
-\hspace{29pt} $Y = n \times 1$ vector of the classes in $X$\\
-\hspace{29pt} $A = m \times p$ matrix of data to classify}
-\KwResult{$B = m \times 1$ vector of classifications for $m$ data set $A$}
+\KwData{$M \times N$ tuples of form ($i$, ($p_{i}$, $x_{j}$, $y_{j}$))}
+\KwResult{$M$ tuples of the form ($i$, $classification$)}
 %-------------------------------Body--------------------------------------------
 \Begin{
-    \textbf{MAPPER:}\;
-    Broadcast $A$ to our $S$ machines\;
-    \For{$i$ in $p$}{
-        Convert the $i$th data point $p_{i}$ in $X$ class $c_{i}$ and $Y$ to the tuple ($i$, ($p_{i}$, $c_{i}$)\;
-        return ($\ceil*{\frac{m}{S}}$, ($p_{i}$, $c_{i}$)\;
+    \For{each input tuple}{
+        $d \leftarrow Dist(p_{i}, x_{j})$ \;
+        form new tuple ($i$, ($d$, $y_{j}$)) \;
     }
-    \textbf{LOCALLY ON EACH MACHINE:}\;
-    Run modified KNN Method 1 (only return list $k$ for each point) for each data group with key value = $i$ with $A$.\;
-    
-
-
+    \For{each new tuple local on each machine}{
+        combine each tuple with same key such that we we keep \; 
+        smallest $K$ $d$ values. \;
+    }
+    Send all ($i$, List[($d$, $y_{j}$)]) to one machine to be combined \;
+    \For{each key value}{
+        Sort List[($d$, $y_{j}$)] by descending $d$. \;
+        Keep only the smallest $K$ entries in sorted List[($d$, $y_{j}$)] \;
+        $c_{i} \leftarrow $ mode of remaining $y_{j}$'s in the list. \;
+        return ($i$, $c_{i}$) \;
+    }
 }
 \caption{Distributed KNN Method 1 - Reducer\label{KNN1r}}
 \end{algorithm}
+
+\vspace{5 mm}
+\noindent
+\textbf{Distributed Classification - Analysis}
+
+\vspace{5 mm}
+\noindent
+We will now analyze the time complexity, shuffle size, and communication of
+this process. For the mapper, all we are doing is pairing up and duplicating our
+data we wish to classify with our training data. Each pairing can be done in
+constant time, so the time complexity is proportional to the total data size,
+or $O(N M)$. Our shuffle size is also proportional to the amount of data we
+produce, which again is $O(N M)$. To distribute our data to all $S$ machines, 
+we must perform a one-to-all communication. We cannot avoid not transmitting 
+all $O(N M)$ data points, so our cost for communication is $O(N M)$.
+
+\vspace{5 mm}
+\noindent
+For our reducer's time complexity, we will investigate a single machine. Assume 
+we can map data roughly evenly across all $S$ machines, so we have 
+$\ceil*{\frac{N M}{S}}$ data on a single machine. Our analysis for the time 
+complexity for this process is similar to our sequential analysis:
+
+\begin{itemize}
+\item We need to compute a distance for each of our $\ceil*{\frac{N M}{S}}$ 
+data points, which will be $O(P \ceil*{\frac{N M}{S}})$ for all of our data on 
+a single machine. 
+\item The combination step increase our work, but will reduce our communication 
+cost (analyzed later). If all same-type keys are on the same machine, this 
+step requires appending our data to a single sorted list, which can be done in 
+$O(N \log N)$ with a mergesort.
+\textbf{TALK ABOUT WHAT HAPPENS IF NOT ON THE SAME MACHINE???}
+\item When we reduce to one machine, each key will have a list of distance, 
+classification tuple pairs of at least $K$ and at most $K S$ if the key was 
+distributed across all $S$ machines. If the size is only $K$, we just need to 
+compute the mode of the classes, which should be $O(K)$. If not, we need to 
+sort the list on our distances first and then compute a mode. Assuming our 
+worst case, we can sort the list in $O(K S \log K S)$ with quicksort. 
+Performing this for each data point will total $O(M K S \log K S)$ for the 
+worst case and $O(M K)$ for the best case.
+\item Our total time complexity is then 
+$O(P \ceil*{\frac{N M}{S}} + N \log N + M K S \log K S)$ \textbf{IS THIS RIGHT?}
+\end{itemize}
+
+\vspace{5 mm}
+\noindent
+Putting all of our data from our $S$ machines onto one machine will require an 
+all to one communication. Based on the above analysis, each machine will have 
+to transmit at most $\ceil*{\frac{N M}{S}}$ each, for a total of $O(N M)$ 
+communication cost. This corresponds to no combining of data. However, if we do 
+combine, the best case would be if all data with the same key is on the same 
+machine for all keys. Then we would transmit only one tuple for each key, 
+meaning our communication cost would be $O(M)$.
+
+\vspace{5 mm}
+\noindent
+\textbf{Distributed Versus Serial Classification}
+
+\vspace{5 mm}
+\noindent
+For situations where all of our data can fit on one machine, we want to know 
+which methodology performs better. The computational complexity advantage of 
+using a distributed cluster is apparent. In serial, our computational 
+complexity is $O(N P M \log K)$. In our best case distributed situation (all 
+keys on the same machine), the computing complexity is 
+$O(P \ceil*{\frac{N M}{S}} + N \log N) = O(N \log N)$ assuming 
+$N > P \ceil*{\frac{N M}{S}}$. The ratio of the serial time complexity to the 
+distributed complexity is $O(P M \frac{\log K}{\log N})$, meaning we have 
+approximately a $O(P M)$ speed up in computational complexity.
+
+\vspace{5 mm}
+\noindent
+However, to do a thorough analysis, we also need to factor in the communication 
+cost. It is worth noting that determining whether it is worth using a 
+distributed setup depends on your computing cluster, including how fast of a 
+network you have and how many machines you have. Note that we have a shuffle 
+size of $O(N M)$ in our map step, which depending on your network can 
+eclipse your computational complexity savings \textbf{CITATION???}. During your 
+reduce, you could also have another $O(N M)$ data transfer, although optimally 
+it will be $O(M)$. These are not trivial communication costs, and deciding if 
+to distribute or not will depend on this analysis. \textbf{CITATION}
