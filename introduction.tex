@@ -1,6 +1,5 @@
 \section{Introduction}
 
-% Add citations for the description of the process?
 \vspace{5 mm}
 \noindent
 K nearest neighbor is typically applied as a classification method. The 
@@ -34,8 +33,14 @@ K nearest neighbor also has applications beyond direct classification. It can
 be used as a way to approximate the geometric structure of data [2]. It does 
 this by finding each data point's $k$ closest data points and ``drawing'' lines 
 between them. This is represented by a graph data structure [4], but visually it 
-can represent manifolds and geometric structures (see figure 1).
-\textbf{ADD FIGURE SHOWING DATA AND A SHAPE} 
+can represent manifolds and geometric structures (see Figure 1).
+
+\includegraphics{manifold}
+Figure 1: An application of isomaps on a ``swiss roll'' dataset. \textit{Source: Lydia E. Kavraki, ``Geometric Methods in Structural
+Computational Biology''}
+
+\vspace{5 mm}
+\noindent
 Performing this type of operation is used predominately in manifold learning 
 techniques, such as isomaps [4].
 
@@ -46,7 +51,7 @@ because now we must compare every point in our data set to every other point.
 Again, a naive implementation would require $O(NP)$ computations per data 
 point. However, we would need to do this step $O(N)$ times for each data point, 
 thus ultimately requiring $O(N^{2}P)$ computations.
-\textbf{ADD CITATION}
+% Not necessary?   \textbf{ADD CITATION}
 
 \vspace{5 mm}
 \noindent
@@ -55,8 +60,7 @@ K nearest neighbor as well as the geometry of data application. The
 first has a very direct deterministic distributive method. The latter will 
 require a randomized approximate approach in order to compute in a distributive 
 environment. For the the geometry of data application, we will be mostly 
-relaying information learned from 
-\textbf{MENTION GOOGLE CITATION}, where they talk about the use of implementing 
-an approximate K nearest neighbor search in a distributed enviornment using 
-hybrid spill trees.
-\textbf{ADD CITATION???} 
+relaying information learned from \textit{``Clustering Billions of Images with 
+Large Scale Nearest Neighbor Search''} [6], where they talk about the use of 
+implementing an approximate K nearest neighbor search in a distributed enviornment
+using hybrid spill trees.
