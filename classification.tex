@@ -13,8 +13,7 @@ data points classes using our dataset of size $N$ (our training data). Given
 this information, and assuming that our feature dimension $P$ is sufficiently 
 small, or we have data size $N >> P$ such that we can overcome the curse of 
 dimensionality associated with distance problems, we would like to apply the 
-K nearest neighbors classification scheme.
-\textbf{ADD CITATION}
+K nearest neighbors classification scheme [2].
 
 \vspace{5 mm}
 \noindent
@@ -69,8 +68,6 @@ this process is as follows:
 }
 \caption{Serial KNN Method 1\label{KNN1}}
 \end{algorithm}
-
-\textbf{IS THERE A REFERNCE?}
 
 \vspace{5 mm}
 \noindent
@@ -188,7 +185,6 @@ a single machine.
 cost (analyzed later). If all same-type keys are on the same machine, this 
 step requires appending our data to a single sorted list, which can be done in 
 $O(N \log N)$ with a mergesort.
-\textbf{TALK ABOUT WHAT HAPPENS IF NOT ON THE SAME MACHINE???}
 \item When we reduce to one machine, each key will have a list of distance, 
 classification tuple pairs of at least $K$ and at most $K S$ if the key was 
 distributed across all $S$ machines. If the size is only $K$, we just need to 
@@ -198,7 +194,7 @@ worst case, we can sort the list in $O(K S \log K S)$ with quicksort.
 Performing this for each data point will total $O(M K S \log K S)$ for the 
 worst case and $O(M K)$ for the best case.
 \item Our total time complexity is then 
-$O(P \ceil*{\frac{N M}{S}} + N \log N + M K S \log K S)$ \textbf{IS THIS RIGHT?}
+$O(P \ceil*{\frac{N M}{S}} + N \log N + M K S \log K S)$
 \end{itemize}
 
 \vspace{5 mm}
