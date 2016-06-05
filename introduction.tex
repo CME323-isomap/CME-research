@@ -1,4 +1,4 @@
-\chapter{Introduction}
+\section{Introduction}
 
 % Add citations for the description of the process?
 \vspace{5 mm}
@@ -6,10 +6,11 @@
 K nearest neighbor is typically applied as a classification method. The 
 intuition behind it is given some training data and a new data point, you would 
 like to classify the new data based on the class of the training data that it 
-is close to. Closeness is defined by a distance metric (e.g. $L_{2}$, $L_{1}$, 
-etc...) applied to the feature space. We find the $k$ closest such data points 
-across the whole training data and classify based on a majority class of the 
-$k$ nearest training data.
+is close to. Closeness is defined by a distance metric (e.g. the Euclidean 
+distance, absolute distance, some user defined distance metric, etc...) applied 
+to the feature space. We find the $k$ closest such data points across the whole 
+training data and classify based on a majority class of the $k$ nearest 
+training data.
 
 \vspace{5 mm}
 \noindent
@@ -20,7 +21,7 @@ In order to find our new data's $k$ closest observations in the training data,
 we will need to compare its distance to every single training data point. 
 If we have training data size $N$, feature space size $P$, and assuming you 
 choose a distance metric that is linear in the feature space, we need to 
-perform $O(NP)$ computations to determine the a single data point's $k$ nearest 
+perform $O(NP)$ computations to determine a single data point's $k$ nearest 
 neighbors [2]. This computation will only grow linearly with the amount of new 
 observations you wish to predict [3]. With large datasets, this classification 
 method becomes prohibitively expensive for traditional serial computing 
@@ -50,10 +51,12 @@ thus ultimately requiring $O(N^{2}P)$ computations.
 \vspace{5 mm}
 \noindent
 We will investigate distributed methods implementing classification with 
-K nearest neighbor as well as distributing the data geometry application. The 
+K nearest neighbor as well as the geometry of data application. The 
 first has a very direct deterministic distributive method. The latter will 
 require a randomized approximate approach in order to compute in a distributive 
-environment.
+environment. For the the geometry of data application, we will be mostly 
+relaying information learned from 
+\textbf{MENTION GOOGLE CITATION}, where they talk about the use of implementing 
+an approximate K nearest neighbor search in a distributed enviornment using 
+hybrid spill trees.
 \textbf{ADD CITATION???} 
-We will approximate using a spill tree data structure.
-\textbf{ADD CITATION}

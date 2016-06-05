@@ -1,4 +1,4 @@
-\chapter{Metric Trees and Spill Trees}
+\section{Metric Trees and Spill Trees}
 
 \vspace{5 mm}
 \noindent
@@ -12,6 +12,10 @@ which is cited below.  Any fine details below originate from [5].
 \noindent
 As mentioned earlier in the report, performing K nearest neighbor search for 
 data geometry applications is computationally infeasible for large data sets. 
+If we were to apply a modified version of the serial algorithm mentioned in the 
+prior section, our time complexity would be $O(N^{2} P)$. For a modified 
+distributed classificaiton algorithm, our time complexity would be 
+$O(P \ceil*{\frac{N^{2}}{S}}$ assuming $N < P \ceil*{\frac{N^{2}}{S}}$.
 To alleviate this problem, we must approximate the solution. There are a 
 variety of approximate solution techniques for K nearest neighbor search. We 
 will focus on using hybrid spill trees and metric trees as our primary data 
@@ -21,8 +25,8 @@ structure.
 \noindent
 Spill trees are specialized data storage constructs that are designed to 
 efficiently organize a set of multidimensional points.  Spill trees operate by 
-constructing a binary tree. The children in a full spill tree are a sub-set of t
-he original data that empirically have the property of being close to one 
+constructing a binary tree. The children in a full spill tree are a sub-set of 
+the original data that empirically have the property of being close to one 
 another. In other words, the spill tree is a way to look up data in which we 
 can determine which data point is close to other observations.
 
@@ -70,29 +74,43 @@ The method for constructing a spill tree is as follows:
 Notice that the use of the $\tau$ parameter allows for data to be duplicated if 
 it appears within $\tau$ of the initial boundary split. The use of this 
 parameter is the defining feature of a spill tree. Spill trees that set 
-$\tau = 0$ are called metric trees.
+$\tau = 0$ are called metric trees. The purpose of using $\tau$ is to get 
+increased accuracy that we pick a subset of data in which points near the 
+separation boundary is actually closest to. The larger the tau, the more 
+accurate the splits, but also the more duplications of data we make and the 
+slower the process.
 
 \vspace{5 mm}
 \noindent
-The pseudo code for implementation is BLAH. The complexity for implementation is 
-BLAH.
+The pseudo code for implementation is:
+
+\begin{algorithm}
+%-------------------------------Header------------------------------------------
+\DontPrintSemicolon
+\KwData{$X = N \times P + 1$ matrix of data, with each data $x_{i}$ having ID $i$.\\ 
+\hspace{50pt} Have column $P + 1$ contain the class of $x_{i}$
+\hspace{29pt} $U = $ a specified threshold upper bound to stop splitting\\
+\hspace{29pt} $\tau = $ our buffer parameter} \\
+\hspace{29pt} $D = N \times N $ matrix of all distances between $x_{i}$'s. \\
+\hspace{50pt} Let $D[i, j] = $ distance between $x_{i}$ and $x_{j}$.
+\KwResult{$T = $ our spill tree}
+%-------------------------------Body--------------------------------------------
+\Begin{
+    If $D$ is empty (first call) compute $D$ with $X$
+    \If{$|X| < U$}{
+        return $T$ \;
+    }
+    \Else{
+        
+    }
+}
+\caption{Serial KNN Method 1\label{KNN1}}
+\end{algorithm}
 
 \vspace{5 mm}
 \noindent
 We would like to use a spill tree model on our data to categorize data with 
-some likelihood of being close to our chosen data point. The re-sampling 
-and duplication of data points inherent to spill trees (as apposed to metric 
-trees) is ideal for a problem like K Nearest Neighbor. We frequently run into 
-situations where data point $a$ might have neighbor data point $b$, but $b$ has 
-other points that it is closer to (see figure). 
-\bftext{INSERT FIGURE}
-Without duplicates, $a$ would then be classified as a neighbor to $b$ and vice 
-versa.
-\bftext{ISTHIS TRUE?}
-
-\vspace{5 mm}
-\noindent
-Further, if we wanted to use K Nearest Neighbor for classification, once we 
+some likelihood of being close to our chosen data point. Once we 
 construct the spill tree, classifying a point would then be as simple as 
 performing a look up for the point (which would have complexity $O(p d)$ where 
 $d = $ the depth of the spill tree) and then computing K Nearest Neighbor on 
