@@ -33,17 +33,16 @@ K nearest neighbor also has applications beyond direct classification. It can
 be used as a way to approximate the geometric structure of data [2]. It does 
 this by finding each data point's $k$ closest data points and ``drawing'' lines 
 between them. This is represented by a graph data structure [4], but visually it 
-can represent manifolds and geometric structures (see Figure 1).
+can represent manifolds and geometric structures (see figure 1).
 
 \begin{figure}[h]
-\includegraphics[width=8cm]{manifold}\\
+\centering
+\includegraphics[width=0.9\textwidth]{manifold}\\
+\end{figure}
 Figure 1: An application of isomaps on a ``swiss roll'' dataset. Notice the 
 shape of the date. KNN is used to approximate this shape, then isomaps is used 
-to reduce the dimensionality.\\ 
-\textit{Source: Lydia E. Kavraki, ``Geometric Methods in Structural
-Computational Biology''}
-\centering
-\end{figure}
+to reduce the dimensionality. \textit{Source: Lydia E. Kavraki, ``Geometric 
+Methods in Structural Computational Biology''}
 
 \vspace{5 mm}
 \noindent
@@ -57,7 +56,6 @@ because now we must compare every point in our data set to every other point.
 Again, a naive implementation would require $O(NP)$ computations per data 
 point. However, we would need to do this step $O(N)$ times for each data point, 
 thus ultimately requiring $O(N^{2}P)$ computations.
-% Not necessary?   \textbf{ADD CITATION}
 
 \vspace{5 mm}
 \noindent
