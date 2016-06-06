@@ -14,7 +14,7 @@ As mentioned earlier in the report, performing K nearest neighbor search for
 data geometry applications is computationally infeasible for large data sets. 
 If we were to apply a modified version of the serial algorithm mentioned in the 
 prior section, our time complexity would be $O(N^{2} P)$. For a modified 
-distributed classificaiton algorithm, our time complexity would be 
+distributed classification algorithm, our time complexity would be 
 $O(P \ceil*{\frac{N^{2}}{S}}$ assuming $N < P \ceil*{\frac{N^{2}}{S}}$. 
 \textbf{THIS DOESN'T MAKE SENSE, FIX}
 To alleviate this problem, we must approximate the solution. There are a 
@@ -100,8 +100,8 @@ The pseudo code for implementation of our algorithm $SpillTree$ is:
 \hspace{29pt} $\tau = $ our buffer parameter\\
 \hspace{29pt} $D = N \times N $ matrix of all distances between $x_{i}$'s. \\
 \hspace{50pt} Let $D[i, j] = $ distance between $x_{i}$ and $x_{j}$. \\
-\hspace{29pt} $T_{acc} = $ our accumulated tree. Initalized to just a root node. \\
-\hspace{29pt} $n_{curr} = $ a pointer to current node of $T_{acc}$ we are considdering.}
+\hspace{29pt} $T_{acc} = $ our accumulated tree. Initialized to just a root node. \\
+\hspace{29pt} $n_{curr} = $ a pointer to current node of $T_{acc}$ we are considering.}
 \KwResult{$T = $ our spill tree}
 %-------------------------------Body--------------------------------------------
 \Begin{
@@ -113,7 +113,7 @@ The pseudo code for implementation of our algorithm $SpillTree$ is:
         $d_{max} \leftarrow max(D[i, j])$ \;
         $x_{i-max}$, $x_{j-max}$ $\leftarrow x_{i}$, $x_{j}$ s.t. 
         $dist(x_{i}, x_{j}) == d_{max}$ \;
-        $plane \leftarrow$ separting plane midway and equidistant \;
+        $plane \leftarrow$ separating plane midway and equidistant \;
             \hspace{10pt} between $x_{i-max}$, $x_{j-max}$ \;
         $plane_{-\tau}$, $plane_{+\tau}$ $\leftarrow$ planes parallel to $plane$ \;
             \hspace{10pt} and $+/- \tau$ distance from $plane$ \:
@@ -144,7 +144,7 @@ The pseudo code for implementation of our algorithm $SpillTree$ is:
 
 \vspace{5 mm}
 \noindent
-We will now analyize the time complexity for constructing a spill tree. First, 
+We will now analyze the time complexity for constructing a spill tree. First, 
 note that the complexity of constructing a tree depends on the parameters that 
 you use to construct the tree and your underlying data. Exact runtime will 
 vary between use of data sets. For example, closely clustered data and large 
@@ -161,36 +161,36 @@ datasize, we mean the size of the data within the current recursive step.
 \item Constructing $D$ for the first time will be $O(N^{2} P)$ because we need 
 to create a distance for each pair of points in $X$. Consequently passing and 
 computing $D_{r}$ and $D_{l}$ will not cost much of anything except dropping a 
-pointer to the row and column of data omitted in the recurrsive call.
-\item Finding the maximum distance accross all pairwise points will be 
+pointer to the row and column of data omitted in the recursive call.
+\item Finding the maximum distance across all pairwise points will be 
 $O(N^{2})$
 \item Constructing the split criteria for the current node will be $O(P)$, 
 which corresponds to constructing a plane of $P$ dimensions.
 \item Classifying each $x_{i}$ to the right and/or left split is $O(N P)$, 
 corresponding to iterating through each point and evaluating which side of the 
-hyperlane it lies on.
+hyperplane it lies on.
 \item Dropping columns and rows of $D_{r}$, $D_{l}$, $X_{r}$, and $X_{l}$ are 
 all $O(1)$ since it corresponds to just dropping pointers.
 \item If we store $T$ as an adjacency list with pointers to the subset of data 
 sets, adding completely new nodes and edges corresponds to just adding new rows, 
-each with two pointers. This is a $O(1)$ opperation.
+each with two pointers. This is a $O(1)$ operation.
 \end{itemize}
 
 \vspace{5 mm}
 \noindent
-The above has an inital cost of $O(N^{2} P)$ outside of the recurssive calls 
+The above has an initial cost of $O(N^{2} P)$ outside of the recursive calls 
 associated with the initial construction of our $D$ matrix. Within our 
-recurssive calls, the dominating opperation is $O(N^{2})$. We then can 
-construct the following recurrsive relationship: $T(N) = T(f(N)) + N^{2}$, 
-where $f(N)$ dictates how quickly our data is being depelted. The basecase for 
-this recurrsive relationship is for $N < U$ and is $O(1)$.
+recursive calls, the dominating operation is $O(N^{2})$. We then can 
+construct the following recursive relationship: $T(N) = T(f(N)) + N^{2}$, 
+where $f(N)$ dictates how quickly our data is being depleted. The base case for 
+this recursive relationship is for $N < U$ and is $O(1)$.
 
 \vspace{5 mm}
 \noindent
 Bounding $f(N)$ requires us to analyze our data structure and some of the 
 parameters that we use to construct our spill tree (namely $\tau$). In fact, 
 some of our choices of $\tau$ could possibly cause non-termination. For 
-example, consider our selction of $\tau > max(D)$. At each step, we would be 
+example, consider our selection of $\tau > max(D)$. At each step, we would be 
 sending our data to both the left and right split each time. We would never 
 reach our threshold $U$ and thus would never terminate.
 
