@@ -1,0 +1,21 @@
+\section{Conclusion}
+
+\vspace{5 mm}
+\noindent
+We have seen two methods of distributing K nearest neighbors. The direct 
+approach exhibits rather large communication costs as we need to duplicate are 
+data multiple times ($O(N M)$) to implement it. It does, however, have 
+reduced complexity linear in the number of machines that we have. 
+
+\vspace{5 mm}
+\noindent
+Our second approach is to approximate our K nearest neighbors with hybrid spill 
+trees. The exact time complexity and communication cost is highly dependent on 
+your data as well as some of your model parameters (namely your resampling 
+parameters). Further emperical analysis will need to be completed to flesh out 
+how dependent these features are on runtime and communication cost. It should 
+be noted, however, that despite these uncertainties, you may still have to 
+implement your problem in this manner because of your data size. If your data 
+is too big to fit on one machine, there is little you can do to avoid high 
+communication costs when trying to implement K nearest neighbors on a 
+distributed framework.
