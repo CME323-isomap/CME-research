@@ -85,8 +85,8 @@ trees.
 \item For each leaf of all the bottom trees, compute K nearest neighbor of the 
 subset data. store the K closest points, classes, and distances.
 \item If all of the data can fit on one machine, reduce the data to one 
-machine. Duplicte data that went to more than one bottom tree will need to 
-sort their list of values based on distances and return the K closests points.
+machine. Duplicate data that went to more than one bottom tree will need to 
+sort their list of values based on distances and return the K closest points.
 \item If the data cannot fit on one machine, it us to the algorithm designer on 
 how they wish to handle duplicate points. Data can be left distributed and 
 accessed via top and bottom trees with duplicate data being compared upon data 
@@ -110,9 +110,9 @@ We will provide an algorithm for when all of our data can fit on one machine:
 \hspace{29pt} $\tau = $ our buffer parameter\\
 \hspace{29pt} $D = N \times N $ matrix of all distances between $x_{i}$'s. \\
 \hspace{50pt} Let $D[i, j] = $ distance between $x_{i}$ and $x_{j}$. \\
-\hspace{29pt} $T_{acc} = $ our accumulated tree. Initalized to just a root node. \\
+\hspace{29pt} $T_{acc} = $ our accumulated tree. Initialized to just a root node. \\
 \hspace{29pt} $n_{curr} = $ a pointer to current node of $T_{acc}$ we are considdering. \\
-\hspace{29pt} $\frac{1}{M} = $ our sampleing probability.}
+\hspace{29pt} $\frac{1}{M} = $ our sampling probability.}
 \KwResult{$T = $ our spill tree}
 %-------------------------------Body--------------------------------------------
 \Begin{
