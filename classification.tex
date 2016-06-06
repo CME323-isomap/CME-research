@@ -141,7 +141,7 @@ framework.
         form new tuple ($i$, ($d$, $y_{j}$)) \;
     }
     \For{each new tuple local on each machine}{
-        combine each tuple with same key such that we we keep \; 
+        combine each tuple with same key such that we keep \; 
         smallest $K$ $d$ values. \;
     }
     Send all ($i$, List[($d$, $y_{j}$)]) to one machine to be combined \;
@@ -230,9 +230,9 @@ cost. It is worth noting that determining whether it is worth using a
 distributed setup depends on your computing cluster, including how fast of a 
 network you have and how many machines you have. Note that we have a shuffle 
 size of $O(N M)$ in our map step, which depending on your network can 
-eclipse your computational complexity savings \textbf{CITATION???}. During your 
+eclipse your computational complexity savings. During your 
 reduce, you could also have another $O(N M)$ data transfer, although optimally 
 it will be $O(M)$. These are not trivial communication costs, and deciding if 
-to distribute or not will depend on this analysis. \textbf{CITATION}
+to distribute or not will depend on this analysis.
 
 \newpage
