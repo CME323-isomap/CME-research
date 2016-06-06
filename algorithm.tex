@@ -188,7 +188,12 @@ together}
 
 \vspace{5 mm}
 \noindent
-\textbf{TALK ABOUT COMM COSTS AND SUCH}
+In our algorithm we incur a one to all broadcast of size $um^2$, evidently 
+if $u$ is chosen such that $um$ just barely fits in memory this will need to
+be done in stages, perhaps by sending subsets of the data through the top tree
+at a time and then communicating.  We also have an all to one communication 
+towards the end where we send all of the k nearest neighbor lists to a machine,
+combining lists with identical keys.
 
 \vspace{5 mm}
 \noindent
