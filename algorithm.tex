@@ -195,11 +195,11 @@ is of size $O(U M)$. Our total communication cost will be the sum of the size
 of each classified leaf. While we cannot guarantee that size given that that 
 would depend on the construct of your data and the $\tau$ parameter we use, we 
 know that it is at least of size $O(N)$. If we employ the use of the $\rho$ 
-parameter to reduce duplications, we know that at most we will tollerate 
+parameter to reduce duplications, we know that at most we will tolerate 
 $\rho$ duplications per split. We can then bound our communication cost above 
 by $N (1 + \rho)^{d}$. These are rough bounds - the real bounds heavily depend 
 on the data set. Regardless, if your $N$ data cannot fit on a single machine, 
-you would be hardpressed to compute K nearest neighbor without incurring a 
+you would be hard pressed to compute K nearest neighbor without incurring a 
 large amount of communication cost.
 
 \vspace{5 mm}
@@ -217,12 +217,12 @@ We will now discuss the time complexity involved with computing:
 \begin{itemize}
 \item Sampling our data is $O(N)$ because we need to access every data element 
 to sample. On an expected basis, the size of our sample will be $\frac{N}{M}$
-\item Constucting our top tree strictly depends on how quickly we deplete our 
-data when we perform a recurssive call. We know that outside the recurssive 
+\item Constructing our top tree strictly depends on how quickly we deplete our 
+data when we perform a recursive call. We know that outside the recursive 
 call we have $O(|S|^{2}) = O((\frac{N}{M})^{2})$ to perform regardless. On an 
 expected basis.
 \item Letting $D = $ the depth of the top tree, classifying all of our $N$ data 
-will take $O(N P D)$ as argured earlier, because we will need to compare each 
+will take $O(N P D)$ as argued earlier, because we will need to compare each 
 data point against a boundary condition, which will be $O(P)$, and we will need 
 to do that at most $D$ times for each of our $N$ data.
 \item Once we have our data on each machine, each of expected size $U M$, we 
@@ -243,7 +243,7 @@ trees. Our hope is that the number of leaves is such that our total time
 complexity is such that it is less than our naive $O(N^{2} P)$ method of 
 computing K nearest neighbors. Regardless, if our data cannot fit on a single 
 machine, we cannot hope to compute K nearest neighbor anyway without a 
-distributed enviornment.
+distributed environment.
 
 \vspace{5 mm}
 \noindent
@@ -257,7 +257,7 @@ constraints.  Consider our top tree, we know that when $\tau$ is 0 the model
 becomes metric, and that as $\tau$ increases the overlap will become greater and 
 greater between pairs of children nodes.  It is therefore important to keep 
 $\tau$ relatively low in the top tree, where a large amount of overlap will 
-result in a greater compute time in the tope tree, as well as many more 
+result in a greater compute time in the top tree, as well as many more 
 computations down the line when we are using our bottom trees [6].  In the bottom 
 trees, however, it is less important to keep $\tau$ low, as multiple machines 
 are making their spill tree computations in parallel, and we can afford to allow 
