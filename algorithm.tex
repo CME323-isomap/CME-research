@@ -9,7 +9,7 @@ performing a look up for the point (which would have complexity $O(P D)$ where
 $D = $ the depth of the spill tree) and then computing K Nearest Neighbor on 
 the subset of the data, which if we set a threshold of the size of our child 
 node equal to $U$ would be $O(U^{2} P)$ for a total time complexity of 
-$O(P D + C^{2} P)$. Compared to our naive way of doing K Nearest Neighbor, 
+$O(P D + U^{2} P)$. Compared to our naive way of doing K Nearest Neighbor, 
 this classification scheme with $U << N$, our runtime on classification is much 
 less.
 
@@ -20,7 +20,7 @@ on our whole data set.
 
 \begin{itemize}
 \item Constructing our $D$ matrix in our spill tree algorithm is already  
-$O(N^{2} p)$, so implementing a spill tree may help us for lookup, but will not 
+$O(N^{2} P)$, so implementing a spill tree may help us for lookup, but will not 
 help us in avoiding the time complexity of actually making the spill tree.
 \item For data size large enough that it will not fit on a single machine, 
 calculating a spill tree directly in a distributed environment will be 
@@ -36,17 +36,17 @@ Instead of constructing a spill tree on all of our data, we will instead
 implement an approximate hybrid spill tree. This approximation method will 
 construct a sampled hybrid spill tree on one machine. This spill tree will 
 classify our data into chunks of data that can fit on single machines. From 
-there, we construct a spill tree on each of the distributed data sets.
+there, we construct a spill tree on each of the distributed data sets[6].
 
 \vspace{5 mm}
 \noindent
-The main problem with using a normal spill tree as our data structure is that is
-$\tau$ is too large, the depth of the spill tree can go to infinity.  To prevent
+The main problem with using a normal spill tree as our data structure is that if
+$\tau$ is too large, the depth of the spill tree can go to infinity[6].  To prevent
 this, we can use a hybrid spill tree.  Hybrid spill trees operate identically to
 spill trees, except they have an additional parameter $\rho$, with $0 \le \rho <
 1$  such that if the overlap proportion when $P.lc$ and $P.rc$ are constructed
 is  $> \rho$, then $P.lc$ and $P.rc$ are instead simply split on the initial
-bound  $B$, with no overlap.  These nodes are marked as non-overlap, which will
+bound with no overlap[6].  These nodes are marked as non-overlap, which will
 become  important later on.  This guarantees that we will not have an infinite
 depth  tree, and makes spill trees usable for our application.
 
@@ -63,57 +63,128 @@ depth first search.
 \noindent
 This gives us an efficient data structure to use for our K nearest neighbors
 algorithm, but it is still designed to be used in a serial environment, and we
-want to use this in a distributed environment.  To accomplish this we will have
+want to use this in a distributed environment [6].  To accomplish this we will have
 to somehow split the dataset among multiple machines.  This is problematic, as
 to generate a hybrid spill tree, you need to have all of the data accessible in
-memory.  We solve this by using the following procedure:
+memory.  We solve this by using the following procedure [6]:
 
-\hrulefill
-\begin{figure}[h]
+\vspace{5 mm}
+\noindent
+\textbf{Distributed KNN - Algorithm}
+
+\begin{itemize}
+\item Sample our original data each with some probability.
+\item Construct a spill tree using the algorithm in the previous section on the 
+sampled data. We call this the top tree.
+\item Classify all of our data according to the top tree. When we reach a 
+leaf in the top tree, we will have a subset of the original data which we will 
+send to a single machine on a distributed cluster.
+\item On each distributed machine compute a spill tree on the subset of the 
+data, again using the algorithm of the previous section. These are the bottom 
+trees.
+\item For each leaf of all the bottom trees, compute K nearest neighbor of the 
+subset data. store the K closest points, classes, and distances.
+\item If all of the data can fit on one machine, reduce the data to one 
+machine. Duplicte data that went to more than one bottom tree will need to 
+sort their list of values based on distances and return the K closests points.
+\item If the data cannot fit on one machine, it us to the algorithm designer on 
+how they wish to handle duplicate points. Data can be left distributed and 
+accessed via top and bottom trees with duplicate data being compared upon data 
+retrieval. We can mark duplicate data to be reduced to a machine to find the 
+best update and then modify our top and bottom trees to send our classification 
+down the correct path for the optimal closest points.
+\end{itemize}
+
+\newpage
+
+\vspace{5 mm}
+\noindent
+We will provide an algorithm for when all of our data can fit on one machine:
+
+\begin{algorithm}[ht!]
+%-------------------------------Header------------------------------------------
+\DontPrintSemicolon
+\KwData{$X = N \times P + 1$ matrix of data, with each data $x_{i}$ having ID $i$.\\ 
+\hspace{50pt} Have column $P + 1$ contain the class of $x_{i}$ \\
+\hspace{29pt} $U = $ a specified threshold upper bound to stop splitting\\
+\hspace{29pt} $\tau = $ our buffer parameter\\
+\hspace{29pt} $D = N \times N $ matrix of all distances between $x_{i}$'s. \\
+\hspace{50pt} Let $D[i, j] = $ distance between $x_{i}$ and $x_{j}$. \\
+\hspace{29pt} $T_{acc} = $ our accumulated tree. Initalized to just a root node. \\
+\hspace{29pt} $n_{curr} = $ a pointer to current node of $T_{acc}$ we are considdering. \\
+\hspace{29pt} $\frac{1}{M} = $ our sampleing probability.}
+\KwResult{$T = $ our spill tree}
+%-------------------------------Body--------------------------------------------
+\Begin{
+    $S \leftarrow $ our sample dataset of $x_{i}$ sampled with probability $\frac{1}{M}$ \;
+    $Top \leftarrow SpillTree(S)$ \;
+    \textbf{MAPPER:} \;
+    Label each leaf of $Top$ with a unique ID. \;
+    Classify $X$ according to $Top$ \;
+    For each $x_{i}$ in each child with ID $c_{id}$, emit ($c_{id}$, ($i$, $x_{i}$)) \;
+    \textbf{REDUCER:} \;
+    $Bottom \leftarrow SpillTree(X$ s.t. $c_{id}$'s are all equal$)$ \;
+    For each leaf in $Bottom$ compute Naive K-NN \;
+    emit ($i$, List[closest $K$ point ids, distances, and classes])
+}
+\caption{Distributed Spill Trees\label{DSP}}
+\end{algorithm}
+
+\vspace{5 mm}
+\noindent
+To assist, we have provided a flow chart to illustrate what we are doing. See 
+figure 2.
+
+\noindent\rule{12.1cm}{0.4pt}
+
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=0.9\textwidth]{algorithm}
 \caption{A visualization of our algorithm to solve distributed K Nearest Neighbors}
 \end{figure}
-\hrulefill
+
+\noindent\rule{12.1cm}{0.4pt}
 
 \vspace{5 mm}
 \noindent
-\textbf{ADD QUICK EXPLANATION OF WHAT IS GOING ON HERE} 
+\textbf{Distributed KNN - Analysis}
 
 \vspace{5 mm}
 \noindent
 This procedure works because the hybrid spill trees yield children subsets that,
-with high probability, contain nodes that are close together.  This is true for 
+with high probability, contain nodes that are close together [6].  This is true for 
 hybrid spill trees more so than metric trees because in a metric tree, two points
 that are very close together can be split into two different subtrees and never be
-compared, but this does not happen in a hybrid spill tree.  In our algorithm, even
+compared, but this does not happen in a hybrid spill tree [6].  In our algorithm, even
 if two similar points happen to be separated in one of the children resulting from
 a split, they will still be together in the other child, and so during evaluation 
 it will still be considered.  This property can be seen below:
 
 \vspace{5 mm}
-\noindent
-\hrulefill
-\begin{figure}[h]
+\noindent\rule{12.1cm}{0.4pt}
+
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=0.9\textwidth]{metric}
 \caption{In the metric tree, two points that are very close together will not 
 be evaluated, whereas two points much further apart will be, because they 
 happen to be in the same split}
 \end{figure}
-\hrulefill
+
+\noindent\rule{12.1cm}{0.4pt}
 
 \vspace{5 mm}
-\noindent
-\hrulefill
-\begin{figure}[h]
+\noindent\rule{12.1cm}{0.4pt}
+
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=0.9\textwidth]{spill}
 \caption{In the spill tree, we can see that when comparing the corresponding
 subset, there are much better odds of close together points being evaluated
 together}
 \end{figure}
-\hrulefill
+
+\noindent\rule{12.1cm}{0.4pt}
 
 \vspace{5 mm}
 \noindent
@@ -122,17 +193,17 @@ together}
 \vspace{5 mm}
 \noindent
 One of the advantages to our algorithm is that the runtime is heavily 
-modifiable.  Some of our user parameters such as $m$ and $u$ are tuned according
+modifiable.  Some of our user parameters such as $M$ and $U$ are tuned according
 to memory constraints or dataset size, but we can adjust $\tau$ and $\rho$ to 
 bring down the runtime of our algorithm at the expense of accuracy, or increase 
-the accuracy at the expense of the runtime.  Once you fit an initial model it is 
+the accuracy at the expense of the runtime [6].  Once you fit an initial model it is 
 convenient to be able to optimize your accuracy, subject to your personal time 
 constraints.  Consider our top tree, we know that when $\tau$ is 0 the model 
 becomes metric, and that as $\tau$ increases the overlap will become greater and 
 greater between pairs of children nodes.  It is therefore important to keep 
 $\tau$ relatively low in the top tree, where a large amount of overlap will 
 result in a greater compute time in the tope tree, as well as many more 
-computations down the line when we are using our bottom trees.  In the bottom 
+computations down the line when we are using our bottom trees [6].  In the bottom 
 trees, however, it is less important to keep $\tau$ low, as multiple machines 
 are making their spill tree computations in parallel, and we can afford to allow 
 more overlap, as long as we set an appropriate value for $\rho$ to prevent the 

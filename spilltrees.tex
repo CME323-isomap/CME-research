@@ -89,7 +89,9 @@ slower the process.
 \noindent
 The pseudo code for implementation of our algorithm $SpillTree$ is:
 
-\begin{algorithm}
+\newpage
+
+\begin{algorithm}[ht!]
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
 \KwData{$X = N \times P + 1$ matrix of data, with each data $x_{i}$ having ID $i$.\\ 
@@ -191,3 +193,5 @@ some of our choices of $\tau$ could possibly cause non-termination. For
 example, consider our selction of $\tau > max(D)$. At each step, we would be 
 sending our data to both the left and right split each time. We would never 
 reach our threshold $U$ and thus would never terminate.
+
+\newpage

@@ -38,9 +38,7 @@ distance from every training data point, select the closest $K$ points, and
 return the class that appears the most of those $K$ points. The psuedo code for 
 this process is as follows:
 
-\newpage
-
-\begin{algorithm}
+\begin{algorithm}[ht!]
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
 \KwData{$X = N \times P$ matrix of training points\\ 
@@ -68,6 +66,8 @@ this process is as follows:
 }
 \caption{Serial KNN Method 1\label{KNN1}}
 \end{algorithm}
+
+\newpage
 
 \vspace{5 mm}
 \noindent
@@ -113,7 +113,7 @@ $K$ smallest distances, which we then use to predict
 Assume we have $S$ machines. The above is easily implemented in a MapReduce 
 framework.
 
-\begin{algorithm}
+\begin{algorithm}[ht!]
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
 \KwData{$X = N \times P$ matrix of training points, with $x_{j}$ the $j$th point \\ 
@@ -129,7 +129,7 @@ framework.
 \caption{Distributed KNN Method 1 - Mapper\label{KNN1m}}
 \end{algorithm}
 
-\begin{algorithm}
+\begin{algorithm}[ht!]
 %-------------------------------Header------------------------------------------
 \DontPrintSemicolon
 \KwData{$M \times N$ tuples of form ($i$, ($p_{i}$, $x_{j}$, $y_{j}$))}
@@ -234,3 +234,5 @@ eclipse your computational complexity savings \textbf{CITATION???}. During your
 reduce, you could also have another $O(N M)$ data transfer, although optimally 
 it will be $O(M)$. These are not trivial communication costs, and deciding if 
 to distribute or not will depend on this analysis. \textbf{CITATION}
+
+\newpage
