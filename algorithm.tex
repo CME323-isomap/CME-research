@@ -36,17 +36,17 @@ Instead of constructing a spill tree on all of our data, we will instead
 implement an approximate hybrid spill tree. This approximation method will 
 construct a sampled hybrid spill tree on one machine. This spill tree will 
 classify our data into chunks of data that can fit on single machines. From 
-there, we construct a spill tree on each of the distributed data sets[6].
+there, we construct a spill tree on each of the distributed data sets [6].
 
 \vspace{5 mm}
 \noindent
 The main problem with using a normal spill tree as our data structure is that if
-$\tau$ is too large, the depth of the spill tree can go to infinity[6].  To prevent
+$\tau$ is too large, the depth of the spill tree can go to infinity [6].  To prevent
 this, we can use a hybrid spill tree.  Hybrid spill trees operate identically to
 spill trees, except they have an additional parameter $\rho$, with $0 \le \rho <
 1$  such that if the overlap proportion when $P.lc$ and $P.rc$ are constructed
 is  $> \rho$, then $P.lc$ and $P.rc$ are instead simply split on the initial
-bound with no overlap[6].  These nodes are marked as non-overlap, which will
+bound with no overlap [6].  These nodes are marked as non-overlap, which will
 become  important later on.  This guarantees that we will not have an infinite
 depth  tree, and makes spill trees usable for our application.
 
@@ -193,7 +193,7 @@ together}
 In our algorithm we incur a one to all communication. We note that each leaf 
 is of size $O(U M)$. Our total communication cost will be the sum of the size 
 of each classified leaf. While we cannot guarantee that size given that that 
-would depend on the construct of your data and the $\tau$ parameter we use, we 
+would depend on the construct of your data and the $\tau$ parameter you use, we 
 know that it is at least of size $O(N)$. If we employ the use of the $\rho$ 
 parameter to reduce duplications, we know that at most we will tolerate 
 $\rho$ duplications per split. We can then bound our communication cost above 
@@ -231,7 +231,7 @@ $O((U M )^{2})$.
 \item Assuming we use the same threshold $U$ for our top and bottom tree, the 
 leaves of each bottom tree will be size $O(U)$. Again, the number of leaves 
 depends on our choice of $\tau$, $\rho$, and $U$, as well as our data shape. 
-However, each leave will compute a naive K nearest neighbor, which is 
+However, each leaf will compute a naive K nearest neighbor, which is 
 $O(P U^{2})$.
 \end{itemize}
 
