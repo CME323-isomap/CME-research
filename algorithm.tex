@@ -111,7 +111,7 @@ We will provide an algorithm for when all of our data can fit on one machine:
 \hspace{29pt} $D = N \times N $ matrix of all distances between $x_{i}$'s. \\
 \hspace{50pt} Let $D[i, j] = $ distance between $x_{i}$ and $x_{j}$. \\
 \hspace{29pt} $T_{acc} = $ our accumulated tree. Initialized to just a root node. \\
-\hspace{29pt} $n_{curr} = $ a pointer to current node of $T_{acc}$ we are considdering. \\
+\hspace{29pt} $n_{curr} = $ a pointer to current node of $T_{acc}$ we are considering. \\
 \hspace{29pt} $\frac{1}{M} = $ our sampling probability.}
 \KwResult{$T = $ our spill tree}
 %-------------------------------Body--------------------------------------------
@@ -173,6 +173,8 @@ happen to be in the same split}
 
 \noindent\rule{12.1cm}{0.4pt}
 
+\newpage
+
 \vspace{5 mm}
 \noindent\rule{12.1cm}{0.4pt}
 
@@ -188,16 +190,64 @@ together}
 
 \vspace{5 mm}
 \noindent
-In our algorithm we incur a one to all broadcast of size $um^2$, evidently 
-if $u$ is chosen such that $um$ just barely fits in memory this will need to
-be done in stages, perhaps by sending subsets of the data through the top tree
-at a time and then communicating.  We also have an all to one communication 
-towards the end where we send all of the k nearest neighbor lists to a machine,
-combining lists with identical keys.
+In our algorithm we incur a one to all communication. We note that each leaf 
+is of size $O(U M)$. Our total communication cost will be the sum of the size 
+of each classified leaf. While we cannot guarantee that size given that that 
+would depend on the construct of your data and the $\tau$ parameter we use, we 
+know that it is at least of size $O(N)$. If we employ the use of the $\rho$ 
+parameter to reduce duplications, we know that at most we will tollerate 
+$\rho$ duplications per split. We can then bound our communication cost above 
+by $N (1 + \rho)^{d}$. These are rough bounds - the real bounds heavily depend 
+on the data set. Regardless, if your $N$ data cannot fit on a single machine, 
+you would be hardpressed to compute K nearest neighbor without incurring a 
+large amount of communication cost.
 
 \vspace{5 mm}
 \noindent
-One of the advantages to our algorithm is that the runtime is heavily 
+We also have an all to one communication towards the end where we send all of 
+the K nearest neighbor lists to a machine, combining lists with identical keys. 
+Without combining, the size of this cost will be equal to the initial 
+communication cost because we have not gotten rid of any of our data at this 
+point. When we combine, however, our data will again reduce down to size $N$.
+
+\vspace{5 mm}
+\noindent
+We will now discuss the time complexity involved with computing:
+
+\begin{itemize}
+\item Sampling our data is $O(N)$ because we need to access every data element 
+to sample. On an expected basis, the size of our sample will be $\frac{N}{M}$
+\item Constucting our top tree strictly depends on how quickly we deplete our 
+data when we perform a recurssive call. We know that outside the recurssive 
+call we have $O(|S|^{2}) = O((\frac{N}{M})^{2})$ to perform regardless. On an 
+expected basis.
+\item Letting $D = $ the depth of the top tree, classifying all of our $N$ data 
+will take $O(N P D)$ as argured earlier, because we will need to compare each 
+data point against a boundary condition, which will be $O(P)$, and we will need 
+to do that at most $D$ times for each of our $N$ data.
+\item Once we have our data on each machine, each of expected size $U M$, we 
+will need to compute another spill tree on each machine, again at least 
+$O((U M )^{2})$.
+\item Assuming we use the same threshold $U$ for our top and bottom tree, the 
+leaves of each bottom tree will be size $O(U)$. Again, the number of leaves 
+depends on our choice of $\tau$, $\rho$, and $U$, as well as our data shape. 
+However, each leave will compute a naive K nearest neighbor, which is 
+$O(P U^{2})$.
+\end{itemize}
+
+\vspace{5 mm}
+\noindent
+We notice from the above complexity analysis that the total time complexity 
+requires us to know how many leaves we have in the top tree and the bottom 
+trees. Our hope is that the number of leaves is such that our total time 
+complexity is such that it is less than our naive $O(N^{2} P)$ method of 
+computing K nearest neighbors. Regardless, if our data cannot fit on a single 
+machine, we cannot hope to compute K nearest neighbor anyway without a 
+distributed enviornment.
+
+\vspace{5 mm}
+\noindent
+We notice that one of the advantages to our algorithm is that the runtime is heavily 
 modifiable.  Some of our user parameters such as $M$ and $U$ are tuned according
 to memory constraints or dataset size, but we can adjust $\tau$ and $\rho$ to 
 bring down the runtime of our algorithm at the expense of accuracy, or increase 
